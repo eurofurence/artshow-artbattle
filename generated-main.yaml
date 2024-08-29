@@ -1,0 +1,9 @@
+generator: main
+parameters:
+  licenseOwner: Eurofurence e.V.
+  licenseYear: "2024"
+  maintainerEmail: tabalon@furry.de
+  repoBaseUrl: github.com/eurofurence
+  reviewers:
+  - tinx
+  serviceName: artshow-artbattle

@@ -1,0 +1,75 @@
+General Idea
+
+	A web browser shows two pieces of artwork, pitting them against
+	each other. The player picks whichever artwork they prefer.
+	The scores of both pieces is adjusted accordingly, and the
+	next two pieces are shown.
+
+UI
+	Battle Screen
+		Display both pieces of artwork
+		Show artist names, titles, current rank(?), current rating(?)
+		Also show which artshow panel to visit to see it live.
+		After the player makes their selection:
+		Show the rating point differences and new ranks before
+		going to the next pair of artwork pieces.
+
+	Score Board
+		Show the top 10 artworks by ranking, including title,
+		panel number, ranking points, artist and a thumbnail.
+
+Matchmaking and Ranking
+	We will use Elo ranking. Every piece starts with a fixed amount
+	of points (say, 800)
+
+	We pick two pieces of artwork for every duel.
+
+	For the first one, we prefer a piece that has done fewer duels
+	than others.
+
+	For the second one, we create a candidate list of the (say)
+	50 pieces with the closest ranking to the first one, sort the
+	list by number of duels fought, and pick one of those, again
+	giving a slight preference to the ones with the fewest battles
+	fought.
+
+	Why so complicated? Isn't it better to just pick two random
+	pieces?  Well, it would be simpler to build, but we would
+	often pit artworks of vastly different popularity against each
+	other, which means we would rarely make the choice difficult
+	for the player. Also, the final ranking would be more luck-dependent,
+	because your image would basically win if it happened to be
+	pitted against more "lower popularity" artwork than another similarily
+	good piece has been.
+
+Architecture
+	We build a web service (no web server required, it's built-in)
+	that will:
+		- deliver the static web site, CSS and JavaScript
+		- act as a REST API
+		- provide events and control via websocket
+		- poll the external buttons for user selection inputs
+
+	The websocket event stream will have different message types:
+
+		1. New Duel Started
+			pic1, pic2, artists, names, ranks, ranking points
+			max duration of duel in seconds
+		2. Winner chosen
+			winner, point gain for winner, points lost for
+			loser, new ranks
+		3. Duel Timeout
+			it's no longer possible to choose a winner
+		4. Show artwork rankings
+			top 10 artwork list, with points
+			Note: "top artists ranking" is not possible,
+			the artists with the most pieces in the database
+			would win.
+		5. Show splash screen
+			Rules
+			Number of duels played
+			Number of art pieces in the catalog
+			[event comes after 60 seconds of idle time and
+			is show for 20 seconds or so, alternating with
+			another duel]
+
